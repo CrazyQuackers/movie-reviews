@@ -13,14 +13,24 @@ Each mission follows TDD (failing test first) and includes its own tests + Swagg
 
 ## Person A
 - [x] **A1 Auth/Users**: User model, register/login, password hashing, JWT sign/verify util, real `requireAuth`. Unit + integration + API tests.
-- [ ] **A2 Swagger**: swagger-jsdoc/ui setup at `/api-docs`, shared schemas (Error, Movie, Review, User), bearer security scheme, document auth routes. Later: audit that every route is documented.
-- [ ] **A3 Cross-cutting tests/quality**: 404 handler, error-handler tests, lint/CI (GitHub Actions running tests), README with setup instructions.
+- [x] **A2 Swagger**: swagger-jsdoc/ui setup at `/api-docs`, shared schemas (Error, User), bearer security scheme, document auth routes. (Movie/Review schemas are added by B with their routes; final audit is in Joint.)
+- [x] **A3 Cross-cutting tests/quality**: 404 handler, error-handler tests (incl. Mongoose CastError/ValidationError -> 400, duplicate key -> 409), lint/CI (GitHub Actions: lint, typecheck, build, tests), README with setup instructions.
 
 ## Person B
 - [ ] **B1 Movie CRUD**: model, repository, service, controller, routes; ownership checks (403); validation. Tests.
 - [ ] **B2 Movie search**: filters, sort, pagination on `GET /movies`. Tests.
 - [ ] **B3 Review CRUD**: model with unique index, create/edit/delete/get (delete allowed for review author or movie owner), `GET /movies/:movieId/reviews`, 409 duplicate, 404 movie. Tests.
 - [ ] **B4 Ratings + cascade**: aggregation for `averageRating`/`reviewCount` in movie detail and list; cascade delete reviews on movie delete. Tests.
+
+### Swagger docs for B's routes (required in every B PR)
+Swagger is already running at `/api-docs` (setup in `src/config/swagger.ts`). It reads `@openapi` JSDoc blocks from every file in `src/routes/`, so new route files are picked up automatically.
+- Put an `@openapi` block directly above **every** route in `src/routes/movies.ts` / `src/routes/reviews.ts`. Copy the style of `src/routes/auth.ts`.
+- Use `tags: [Movies]` or `tags: [Reviews]` (already defined).
+- Protected routes (POST/PUT/DELETE) add `security: [{ bearerAuth: [] }]`, so the **Authorize** button works for them.
+- Document every response code the route can return (200/201/204, 400, 401, 403, 404, 409) and use `$ref: '#/components/schemas/Error'` for error responses.
+- Define the `Movie` and `Review` schemas (and list responses `{ data, page, limit, total }`) in a `components: schemas:` block at the top of your route file, like `User` in `auth.ts`. Include `averageRating` and `reviewCount` on `Movie`.
+- Path params use OpenAPI style: `/movies/{id}`, not `/movies/:id`. Query filters (B2) go under `parameters` with `in: query`.
+- Check before opening the PR: `npm run dev:memory`, open http://localhost:3000/api-docs, try each route with **Try it out**. The startup log prints how many paths are documented.
 
 ## Joint (end)
 - [ ] Full API test pass across flows (register -> create movie -> review -> rating shows -> delete cascade)

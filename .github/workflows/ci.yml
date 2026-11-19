@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      # The tests start an in-memory MongoDB; cache its binary so it isn't downloaded on every run.
+      # (Restored after `npm ci`, because npm ci deletes node_modules.)
+      - name: Cache MongoDB binary
+        uses: actions/cache@v4
+        with:
+          path: node_modules/.cache/mongodb-memory-server
+          key: mongodb-binary-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Test
+        run: npm test

@@ -1,4 +1,5 @@
 import express from 'express';
+import mongoose from 'mongoose';
 import request from 'supertest';
 import { z } from 'zod';
 import { AppError } from '../../src/errors/AppError';
@@ -35,6 +36,48 @@ describe('errorHandler', () => {
     const res = await request(app).get('/x');
     expect(res.status).toBe(500);
     expect(JSON.stringify(res.body)).not.toContain('secret');
+  });
+
+  it('maps a Mongoose CastError (e.g. invalid ObjectId) to 400', async () => {
+    const app = appWith((a) =>
+      a.get('/x', () => {
+        throw new mongoose.Error.CastError('ObjectId', 'not-an-id', '_id');
+      }),
+    );
+    const res = await request(app).get('/x');
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+    expect(res.body.error.message).toContain('_id');
+  });
+
+  it('maps a Mongoose ValidationError to 400 with per-field details', async () => {
+    const Thing = mongoose.model('ErrorHandlerThing', new mongoose.Schema({ name: { type: String, required: true } }));
+    const validationError = new Thing({}).validateSync();
+    const app = appWith((a) =>
+      a.get('/x', () => {
+        throw validationError;
+      }),
+    );
+    const res = await request(app).get('/x');
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+    expect(res.body.error.details).toEqual([{ path: 'name', message: expect.any(String) }]);
+  });
+
+  it('maps a MongoDB duplicate-key error (11000) to 409 without leaking values', async () => {
+    const app = appWith((a) =>
+      a.get('/x', () => {
+        throw Object.assign(new Error('E11000 duplicate key secret@x.io'), {
+          code: 11000,
+          keyValue: { email: 'secret@x.io' },
+        });
+      }),
+    );
+    const res = await request(app).get('/x');
+    expect(res.status).toBe(409);
+    expect(res.body.error.code).toBe('CONFLICT');
+    expect(res.body.error.details).toEqual({ fields: ['email'] });
+    expect(JSON.stringify(res.body)).not.toContain('secret@x.io');
   });
 
   it('maps malformed JSON to 400', async () => {

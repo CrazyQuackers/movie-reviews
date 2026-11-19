@@ -13,7 +13,8 @@
     "test:unit": "jest --runInBand tests/unit",
     "test:integration": "jest --runInBand tests/integration",
     "test:api": "jest --runInBand tests/api",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
