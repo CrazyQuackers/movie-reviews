@@ -3,12 +3,13 @@
 Two people: **A** (infra, auth, Swagger) and **B** (movies, reviews). Tick boxes in the same PR that finishes the mission.
 Each mission follows TDD (failing test first) and includes its own tests + Swagger JSDoc.
 
-## M0: Scaffold + shared contract (A, do first, small, merge fast)
-- [ ] package.json, tsconfig (strict), jest config, eslint, `.env.example`, folder skeleton from CLAUDE.md
-- [ ] `app.ts` / `server.ts`, `config/` (env, db connect), `GET /health`
-- [ ] Shared contract: `AppError`, `errorHandler`, `validate` middleware, `AuthRequest` type (`req.user = {id}`),
+## M0: Scaffold + shared contract (DONE, branch `feat/m0-scaffold`)
+- [x] package.json, tsconfig (strict), jest config, eslint, `.env.example`, folder skeleton from CLAUDE.md
+- [x] `app.ts` / `server.ts`, `config/` (env, db connect), `GET /health`
+- [x] Shared contract: `AppError`, `errorHandler`, `validate` middleware, `AuthRequest` type (`req.user = {id}`),
       `requireAuth` signature, test helpers (mongodb-memory-server setup, `createUserAndToken()` helper)
-- B can start early using a stubbed `requireAuth`/token helper, replacing it once A1 merges.
+- `requireAuth` already verifies `Authorization: Bearer <jwt>` with payload `{ sub: <userId> }` and sets `req.user.id`. A1 adds token signing (must use `sub`), the User model and the real test helper (replace `signTestToken` in `tests/helpers/auth.ts`).
+- Test DB helper: `tests/helpers/db.ts` (`startTestDb`/`clearTestDb`/`stopTestDb`). Feature routers are mounted in `src/routes/index.ts` (one line each).
 
 ## Person A
 - [ ] **A1 Auth/Users**: User model, register/login, password hashing, JWT sign/verify util, real `requireAuth`. Unit + integration + API tests.

@@ -7,8 +7,8 @@ Course project (2 people). REST API for movies and reviews with JWT auth, Swagge
 Node.js, Express, TypeScript, MongoDB + Mongoose, JWT (jsonwebtoken + bcrypt), Zod validation,
 swagger-jsdoc + swagger-ui-express (`/api-docs`), Jest + ts-jest + supertest + mongodb-memory-server.
 
-## Planned npm scripts
-`dev` (ts-node-dev), `build` (tsc), `start`, `test`, `test:unit`, `test:integration`, `test:api`, `lint`.
+## npm scripts
+`dev` (ts-node-dev; needs `.env` copied from `.env.example` and a running MongoDB), `build` (tsc), `start`, `test`, `test:unit`, `test:integration`, `test:api`, `lint`.
 
 ## Architecture (strict separation of responsibility)
 ```
@@ -30,6 +30,10 @@ tests/
   api/           supertest against app
 ```
 Dependencies flow one way: routes -> controllers -> services -> repositories -> models.
+
+## Gotchas
+- Jest + MongoDB driver: connections in tests must go through `tests/helpers/db.ts` (passes `runtimeAdapters: { os }`), otherwise the driver fails with "Missing required sub-document 'driver'". First test run downloads a mongod binary (can take a minute).
+- Express 5: async handlers/middleware may just `throw`; errors reach `errorHandler` automatically.
 
 ## Conventions
 - TDD: write a failing test first, then the minimum code, then refactor. Every feature PR includes unit + integration/API tests.
