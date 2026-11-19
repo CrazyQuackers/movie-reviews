@@ -12,7 +12,7 @@ Each mission follows TDD (failing test first) and includes its own tests + Swagg
 - Test DB helper: `tests/helpers/db.ts` (`startTestDb`/`clearTestDb`/`stopTestDb`). Feature routers are mounted in `src/routes/index.ts` (one line each).
 
 ## Person A
-- [ ] **A1 Auth/Users**: User model, register/login, password hashing, JWT sign/verify util, real `requireAuth`. Unit + integration + API tests.
+- [x] **A1 Auth/Users**: User model, register/login, password hashing, JWT sign/verify util, real `requireAuth`. Unit + integration + API tests.
 - [ ] **A2 Swagger**: swagger-jsdoc/ui setup at `/api-docs`, shared schemas (Error, Movie, Review, User), bearer security scheme, document auth routes. Later: audit that every route is documented.
 - [ ] **A3 Cross-cutting tests/quality**: 404 handler, error-handler tests, lint/CI (GitHub Actions running tests), README with setup instructions.
 
