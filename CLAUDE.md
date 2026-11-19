@@ -42,6 +42,7 @@ Dependencies flow one way: routes -> controllers -> services -> repositories -> 
 
 ## Key rules (details in docs/SPEC.md)
 - GET endpoints public; POST/PUT/DELETE need JWT; PUT/DELETE need ownership (`createdBy`), else 403.
+- A movie's owner may also delete any review on their movie (review author can edit/delete own review; only the author edits).
 - One review per user per movie (409). Deleting a movie deletes its reviews.
 - Movie details return `averageRating` and `reviewCount`.
 

@@ -4,6 +4,7 @@
 - Reads (GET) are public. POST/PUT/DELETE require `Authorization: Bearer <jwt>`.
 - `createdBy` (user id) is stored on every movie and review, set from the token, never from the body.
 - Only the owner can PUT/DELETE a movie/review (403 otherwise). No admin role.
+- Exception: a movie's owner can also DELETE any review on their movie (moderation). Only the review's author can edit it.
 - One review per user per movie (unique index `movie+createdBy`, 409 on duplicate).
 - Deleting a movie deletes all its reviews.
 - Auth: register/login, bcrypt-hashed password, single access JWT (1h, `JWT_EXPIRES_IN`), no refresh tokens.
@@ -29,7 +30,7 @@
 | POST | /movies/:movieId/reviews | yes | | 201; 409 duplicate; 404 movie missing |
 | GET | /reviews/:id | no | | |
 | PUT | /reviews/:id | yes | yes | only `rating`, `text` editable |
-| DELETE | /reviews/:id | yes | yes | 204 |
+| DELETE | /reviews/:id | yes | yes | 204; allowed for the review's author OR the owner of the reviewed movie |
 | GET | /api-docs | no | | Swagger UI |
 
 List responses: `{ data: [...], page, limit, total }`. Movie list items also include `averageRating` and `reviewCount`.
