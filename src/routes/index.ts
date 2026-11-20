@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import authRouter from './auth';
+import movieRouter from './movies';
 
 const router = Router();
 
@@ -18,7 +19,7 @@ router.get('/health', (_req, res) => {
 
 // Mount feature routers below (one line each, to avoid merge conflicts):
 router.use('/auth', authRouter);
-// router.use('/movies', movieRouter);
+router.use('/movies', movieRouter);
 // router.use('/reviews', reviewRouter);
 
 export default router;
