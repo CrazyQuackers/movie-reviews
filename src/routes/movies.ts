@@ -24,6 +24,14 @@ const router = Router();
  *         createdBy: { type: string, description: Id of the user who owns the movie, example: 507f1f77bcf86cd799439012 }
  *         createdAt: { type: string, format: date-time }
  *         updatedAt: { type: string, format: date-time }
+ *     MovieWithRatings:
+ *       description: A movie plus its review statistics (returned by the detail and list endpoints)
+ *       allOf:
+ *         - $ref: '#/components/schemas/Movie'
+ *         - type: object
+ *           properties:
+ *             averageRating: { type: number, nullable: true, description: 'Average review rating rounded to 1 decimal; null when the movie has no reviews', example: 8.3 }
+ *             reviewCount: { type: integer, description: Number of reviews, example: 3 }
  *     MovieInput:
  *       type: object
  *       required: [title, releaseYear, genre, director]
@@ -37,7 +45,7 @@ const router = Router();
  *     MovieList:
  *       type: object
  *       properties:
- *         data: { type: array, items: { $ref: '#/components/schemas/Movie' } }
+ *         data: { type: array, items: { $ref: '#/components/schemas/MovieWithRatings' } }
  *         page: { type: integer, example: 1 }
  *         limit: { type: integer, example: 20 }
  *         total: { type: integer, example: 42 }
@@ -63,12 +71,15 @@ const router = Router();
  *       - { name: year, in: query, description: Exact release year, schema: { type: integer, example: 1999 } }
  *       - { name: director, in: query, description: Case-insensitive exact match on the director, schema: { type: string, example: Lana Wachowski } }
  *       - { name: actor, in: query, description: Case-insensitive exact match on any of the movie's actors, schema: { type: string, example: Keanu Reeves } }
+ *       - { name: minRating, in: query, description: 'Only movies whose averageRating is at least this (1-10); movies without reviews are excluded', schema: { type: number, minimum: 1, maximum: 10, example: 7.5 } }
  *       - name: sort
  *         in: query
- *         description: Field to sort by; prefix with `-` for descending. Defaults to newest first (`-createdAt`).
+ *         description: >
+ *           Field to sort by; prefix with `-` for descending. Defaults to newest first (`-createdAt`).
+ *           For `averageRating`, movies without reviews count as the lowest.
  *         schema:
  *           type: string
- *           enum: [title, -title, releaseYear, -releaseYear, createdAt, -createdAt]
+ *           enum: [title, -title, releaseYear, -releaseYear, createdAt, -createdAt, averageRating, -averageRating, reviewCount, -reviewCount]
  *       - { name: page, in: query, schema: { type: integer, minimum: 1, default: 1 } }
  *       - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
  *     responses:
@@ -95,10 +106,10 @@ router.get('/', validate(listMoviesQuerySchema, 'query'), movieController.list);
  *       - $ref: '#/components/parameters/MovieId'
  *     responses:
  *       200:
- *         description: The movie
+ *         description: The movie with its averageRating and reviewCount
  *         content:
  *           application/json:
- *             schema: { $ref: '#/components/schemas/Movie' }
+ *             schema: { $ref: '#/components/schemas/MovieWithRatings' }
  *       400:
  *         description: Malformed id
  *         content:
@@ -207,7 +218,7 @@ router.put(
  * /movies/{id}:
  *   delete:
  *     tags: [Movies]
- *     summary: Delete a movie (owner only)
+ *     summary: Delete a movie and all its reviews (owner only)
  *     security: [{ bearerAuth: [] }]
  *     parameters:
  *       - $ref: '#/components/parameters/MovieId'

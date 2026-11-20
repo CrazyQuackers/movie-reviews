@@ -62,8 +62,25 @@ describe('listMoviesQuerySchema', () => {
     expect(parsed).toMatchObject({ year: 1999, page: 2, limit: 5, title: 'matrix' });
   });
 
-  it.each(['title', '-title', 'releaseYear', '-releaseYear', 'createdAt', '-createdAt'])('accepts sort=%s', (sort) => {
+  it.each([
+    'title',
+    '-title',
+    'releaseYear',
+    '-releaseYear',
+    'createdAt',
+    '-createdAt',
+    'averageRating',
+    '-averageRating',
+    'reviewCount',
+    '-reviewCount',
+  ])('accepts sort=%s', (sort) => {
     expect(listMoviesQuerySchema.safeParse({ sort }).success).toBe(true);
+  });
+
+  it('coerces minRating and accepts 1 to 10 (decimals allowed)', () => {
+    expect(listMoviesQuerySchema.parse({ minRating: '7.5' }).minRating).toBe(7.5);
+    expect(listMoviesQuerySchema.safeParse({ minRating: '1' }).success).toBe(true);
+    expect(listMoviesQuerySchema.safeParse({ minRating: '10' }).success).toBe(true);
   });
 
   it.each([
@@ -73,6 +90,9 @@ describe('listMoviesQuerySchema', () => {
     ['empty title', { title: '' }],
     ['empty genre', { genre: '   ' }],
     ['limit above 100', { limit: '101' }],
+    ['minRating below 1', { minRating: '0.5' }],
+    ['minRating above 10', { minRating: '11' }],
+    ['non-numeric minRating', { minRating: 'high' }],
   ])('rejects %s', (_name, query) => {
     expect(listMoviesQuerySchema.safeParse(query).success).toBe(false);
   });

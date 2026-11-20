@@ -31,7 +31,7 @@ export const updateMovieSchema = createMovieSchema
   .extend({ actors: z.array(text).optional() })
   .refine((body) => Object.keys(body).length > 0, { message: 'Provide at least one field to update' });
 
-export const MOVIE_SORT_FIELDS = ['title', 'releaseYear', 'createdAt'] as const;
+export const MOVIE_SORT_FIELDS = ['title', 'releaseYear', 'createdAt', 'averageRating', 'reviewCount'] as const;
 /** `field` sorts ascending, `-field` descending. */
 const sortValues = MOVIE_SORT_FIELDS.flatMap((field) => [field, `-${field}` as const]);
 
@@ -41,6 +41,8 @@ export const listMoviesQuerySchema = paginationSchema.extend({
   year: z.coerce.number().int().optional(),
   director: text.optional(), // exact, case-insensitive
   actor: text.optional(), // exact (case-insensitive) match against any of the movie's actors
+  // Keeps movies whose averageRating is at least this; movies without reviews are dropped.
+  minRating: z.coerce.number().min(1).max(10).optional(),
   // No default here: the repository falls back to newest first.
   sort: z.enum(sortValues).optional(),
 });
