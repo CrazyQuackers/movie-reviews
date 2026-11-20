@@ -2,7 +2,8 @@ import { Router } from 'express';
 import * as movieController from '../controllers/movieController';
 import { requireAuth } from '../middlewares/requireAuth';
 import { validate } from '../middlewares/validate';
-import { createMovieSchema, idParamSchema, listMoviesQuerySchema, updateMovieSchema } from '../validators/movie';
+import { idParamSchema } from '../validators/common';
+import { createMovieSchema, listMoviesQuerySchema, updateMovieSchema } from '../validators/movie';
 
 const router = Router();
 

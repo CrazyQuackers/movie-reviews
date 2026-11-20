@@ -19,7 +19,7 @@ Each mission follows TDD (failing test first) and includes its own tests + Swagg
 ## Person B
 - [x] **B1 Movie CRUD**: model, repository, service, controller, routes; ownership checks (403); validation. Tests.
 - [x] **B2 Movie search**: filters, sort, pagination on `GET /movies`. Tests.
-- [ ] **B3 Review CRUD**: model with unique index, create/edit/delete/get (delete allowed for review author or movie owner), `GET /movies/:movieId/reviews`, 409 duplicate, 404 movie. Tests.
+- [x] **B3 Review CRUD**: model with unique index, create/edit/delete/get (delete allowed for review author or movie owner), `GET /movies/:movieId/reviews`, 409 duplicate, 404 movie. Tests.
 - [ ] **B4 Ratings + cascade**: aggregation for `averageRating`/`reviewCount` in movie detail and list; cascade delete reviews on movie delete. Tests.
 
 ### Swagger docs for B's routes (required in every B PR)
