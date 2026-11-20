@@ -54,8 +54,20 @@ const router = Router();
  * /movies:
  *   get:
  *     tags: [Movies]
- *     summary: List movies (public)
+ *     summary: Search and list movies (public)
+ *     description: All filters are optional and combined with AND. `total` is the number of movies matching the filters.
  *     parameters:
+ *       - { name: title, in: query, description: Partial, case-insensitive match on the title, schema: { type: string, example: matrix } }
+ *       - { name: genre, in: query, description: Case-insensitive exact match on any of the movie's genres, schema: { type: string, example: sci-fi } }
+ *       - { name: year, in: query, description: Exact release year, schema: { type: integer, example: 1999 } }
+ *       - { name: director, in: query, description: Case-insensitive exact match on the director, schema: { type: string, example: Lana Wachowski } }
+ *       - { name: actor, in: query, description: Case-insensitive exact match on any of the movie's actors, schema: { type: string, example: Keanu Reeves } }
+ *       - name: sort
+ *         in: query
+ *         description: Field to sort by; prefix with `-` for descending. Defaults to newest first (`-createdAt`).
+ *         schema:
+ *           type: string
+ *           enum: [title, -title, releaseYear, -releaseYear, createdAt, -createdAt]
  *       - { name: page, in: query, schema: { type: integer, minimum: 1, default: 1 } }
  *       - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
  *     responses:
