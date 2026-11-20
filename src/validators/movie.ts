@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { paginationSchema } from './common';
 
 export const MIN_RELEASE_YEAR = 1888;
 const MAX_YEARS_AHEAD = 5;
@@ -30,16 +31,11 @@ export const updateMovieSchema = createMovieSchema
   .extend({ actors: z.array(text).optional() })
   .refine((body) => Object.keys(body).length > 0, { message: 'Provide at least one field to update' });
 
-export const idParamSchema = z.object({
-  id: z.string().regex(/^[a-f\d]{24}$/i, 'Invalid id'),
-});
-
 export const MOVIE_SORT_FIELDS = ['title', 'releaseYear', 'createdAt'] as const;
 /** `field` sorts ascending, `-field` descending. */
 const sortValues = MOVIE_SORT_FIELDS.flatMap((field) => [field, `-${field}` as const]);
 
-/** Query string values arrive as strings, hence coerce. */
-export const listMoviesQuerySchema = z.object({
+export const listMoviesQuerySchema = paginationSchema.extend({
   title: text.optional(), // partial, case-insensitive
   genre: text.optional(), // exact (case-insensitive) match against any of the movie's genres
   year: z.coerce.number().int().optional(),
@@ -47,8 +43,6 @@ export const listMoviesQuerySchema = z.object({
   actor: text.optional(), // exact (case-insensitive) match against any of the movie's actors
   // No default here: the repository falls back to newest first.
   sort: z.enum(sortValues).optional(),
-  page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(100).default(20),
 });
 
 export type CreateMovieInput = z.infer<typeof createMovieSchema>;
