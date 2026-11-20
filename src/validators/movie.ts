@@ -34,8 +34,19 @@ export const idParamSchema = z.object({
   id: z.string().regex(/^[a-f\d]{24}$/i, 'Invalid id'),
 });
 
+export const MOVIE_SORT_FIELDS = ['title', 'releaseYear', 'createdAt'] as const;
+/** `field` sorts ascending, `-field` descending. */
+const sortValues = MOVIE_SORT_FIELDS.flatMap((field) => [field, `-${field}` as const]);
+
 /** Query string values arrive as strings, hence coerce. */
 export const listMoviesQuerySchema = z.object({
+  title: text.optional(), // partial, case-insensitive
+  genre: text.optional(), // exact (case-insensitive) match against any of the movie's genres
+  year: z.coerce.number().int().optional(),
+  director: text.optional(), // exact, case-insensitive
+  actor: text.optional(), // exact (case-insensitive) match against any of the movie's actors
+  // No default here: the repository falls back to newest first.
+  sort: z.enum(sortValues).optional(),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20),
 });
