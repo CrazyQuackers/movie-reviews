@@ -36,4 +36,9 @@ export const reviewRepository = {
   async delete(review: ReviewDoc): Promise<void> {
     await review.deleteOne();
   },
+
+  /** Deletes every review of a movie (used when the movie is deleted). */
+  async deleteByMovie(movieId: string): Promise<void> {
+    await Review.deleteMany({ movie: movieId }).exec();
+  },
 };
