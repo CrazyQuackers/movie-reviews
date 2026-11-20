@@ -1,9 +1,5 @@
-import {
-  createMovieSchema,
-  idParamSchema,
-  listMoviesQuerySchema,
-  updateMovieSchema,
-} from '../../src/validators/movie';
+import { idParamSchema } from '../../src/validators/common';
+import { createMovieSchema, listMoviesQuerySchema, updateMovieSchema } from '../../src/validators/movie';
 
 const valid = { title: 'The Matrix', releaseYear: 1999, genre: ['sci-fi'], director: 'Wachowski' };
 
