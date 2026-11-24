@@ -9,7 +9,7 @@
     "dev:memory": "ts-node-dev --respawn --transpile-only scripts/dev-memory.ts",
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/server.js",
-    "test": "jest --runInBand",
+    "test": "jest --runInBand --coverage",
     "test:unit": "jest --runInBand tests/unit",
     "test:integration": "jest --runInBand tests/integration",
     "test:api": "jest --runInBand tests/api",
